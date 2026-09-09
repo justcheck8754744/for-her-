@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For my Ayeshsa</title>
+<meta name="theme-color" content="#fdf1f3">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9456c' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fdf1f3; --paper:#fffdfb;
+    --rose:#c9456c; --rose-deep:#a93457; --rose-soft:#f0a9bc;
+    --env:#f3c3d2; --env-pocket:#f7cfdb; --env-flap:#efb6c7;
+    --ink:#593243; --muted:#a96076;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:'Quicksand',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--rose-soft);color:var(--rose-deep)}
+  button{font-family:inherit}
+
+  body::after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .frame{position:fixed;inset:12px;border:1px solid rgba(201,69,108,.30);border-radius:10px;pointer-events:none;z-index:50}
+  .frame::after{content:"";position:absolute;inset:5px;border:1px solid rgba(201,69,108,.14);border-radius:7px}
+
+  canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+  canvas#fx{position:fixed;inset:0;z-index:40;pointer-events:none}
+  #stage{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:48px 20px;position:relative;z-index:10}
+  .scene{display:none;flex-direction:column;align-items:center;text-align:center}
+  .scene.active{display:flex;animation:sceneIn .8s .05s cubic-bezier(.2,.8,.3,1) both}
+  .scene.leave{animation:sceneOut .38s ease both}
+  @keyframes sceneIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+  @keyframes sceneOut{to{opacity:0;transform:translateY(-18px)}}
+  .kicker{font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+
+  /* ============ ENVELOPE ============ */
+  .scene-envelope .kicker{margin-bottom:26px}
+  .envelope-wrap{position:relative;perspective:1200px;animation:float 5.5s ease-in-out infinite;margin-bottom:30px}
+  @keyframes float{50%{transform:translateY(-7px)}}
+  .tilt{transition:transform .3s ease-out}
+  .envelope{position:relative;width:min(86vw,360px);aspect-ratio:3/2}
+  .env-shadow{position:absolute;left:6%;right:6%;bottom:-28px;height:18px;border-radius:50%;
+    background:radial-gradient(50% 50% at 50% 50%, rgba(90,30,50,.16), transparent 70%)}
+  .env-back{position:absolute;inset:0;z-index:1;background:var(--env);border-radius:8px;
+    box-shadow:inset 0 -3px 8px rgba(169,52,87,.10), 0 14px 34px -14px rgba(90,30,50,.30)}
+  .env-letter{position:absolute;left:6%;right:6%;top:7%;bottom:8%;z-index:2;background:var(--paper);
+    border-radius:4px;box-shadow:0 2px 12px rgba(90,30,50,.14);transition:transform .95s cubic-bezier(.5,.05,.2,1)}
+  .envelope.letter-out .env-letter{transform:translateY(-64%)}
+  .mini{padding:16px 18px;text-align:center}
+  .mini-heart{width:20px;height:20px;color:var(--rose)}
+  .mini-note{font:600 17px/1 'Caveat',cursive;color:var(--muted);margin:5px 0 11px}
+  .mline{height:3px;border-radius:2px;background:#f2dee4;margin:7px auto}
+  .w1{width:70%}.w2{width:52%}.w3{width:62%}
+  .env-pocket{position:absolute;inset:0;z-index:3;background:var(--env-pocket);border-radius:8px;
+    clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%)}
+  .env-pocket::before,.env-pocket::after{content:"";position:absolute;top:-1px;width:62.4%;height:1.5px;background:rgba(169,52,87,.20)}
+  .env-pocket::before{left:0;transform-origin:0 0;transform:rotate(36.7deg)}
+  .env-pocket::after{right:0;transform-origin:100% 0;transform:rotate(-36.7deg)}
+  .flap-plane{position:absolute;top:0;left:0;right:0;height:62%;z-index:4;perspective:700px;pointer-events:none;transition:z-index .9s linear}
+  .envelope.flap-open .flap-plane{z-index:1}
+  .env-flap{position:absolute;inset:0;background:var(--env-flap);border-radius:8px 8px 0 0;
+    clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;
+    transition:transform .95s cubic-bezier(.6,.05,.3,1)}
+  .envelope.flap-open .env-flap{transform:rotateX(-178deg)}
+  .stamp{position:absolute;top:12px;right:14px;z-index:5;width:58px;padding:7px 4px 6px;background:var(--paper);
+    border:1px dashed rgba(201,69,108,.45);border-radius:3px;transform:rotate(5deg);
+    box-shadow:0 2px 6px rgba(90,30,50,.15);display:flex;flex-direction:column;align-items:center;color:var(--rose)}
+  .stamp-heart{width:16px;height:16px}
+  .stamp-txt{font-size:6.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+  .stamp-sub{font:600 11px/1.1 'Caveat',cursive;color:var(--rose-deep)}
+  .env-address{position:absolute;left:24px;bottom:16px;z-index:5;display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+  .env-address .to{font-size:9px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+  .env-address .name{font:600 26px/1.25 'Caveat',cursive;color:var(--ink)}
+  .seal{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);z-index:6;width:54px;height:54px;
+    border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;background:var(--rose);
+    box-shadow:0 4px 10px rgba(90,30,50,.32), inset 0 2px 4px rgba(255,255,255,.35), inset 0 -3px 6px rgba(0,0,0,.22);
+    transition:transform .35s cubic-bezier(.3,1.5,.5,1), opacity .35s}
+  .seal::before{content:"";position:absolute;inset:5px;border:1.5px dashed rgba(255,233,239,.55);border-radius:50%}
+  .seal svg{width:22px;height:22px}
+  .seal:hover{transform:translate(-50%,-50%) scale(1.09) rotate(-5deg)}
+  .seal-ring{position:absolute;inset:-6px;border:1.5px solid rgba(201,69,108,.5);border-radius:50%;animation:ring 2s ease-out infinite;pointer-events:none}
+  @keyframes ring{from{transform:scale(.85);opacity:.8}to{transform:scale(1.45);opacity:0}}
+  .envelope.opening .seal{transform:translate(-50%,-50%) scale(.15) rotate(-25deg);opacity:0;pointer-events:none}
+  .address-line{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+  .al-pre{font-size:12px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+  .al-name{font:700 clamp(36px,9vw,46px)/1 'Caveat',cursive;color:var(--rose-deep)}
+  .al-heart{width:17px;height:17px;color:var(--rose);align-self:center;animation:beat 1.6s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}}
+  .hint{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);animation:hintPulse 2.2s ease-in-out infinite}
+  @keyframes hintPulse{50%{opacity:.4}}
+
+  /* ============ LETTER ============ */
+  .paper{position:relative;width:min(92vw,560px);background:var(--paper);border-radius:6px;transform:rotate(-.6deg);
+    padding:clamp(30px,6vw,52px) clamp(24px,7vw,58px) clamp(28px,6vw,46px);
+    box-shadow:0 26px 60px -24px rgba(90,30,50,.28), 0 2px 10px rgba(90,30,50,.08)}
+  .paper.shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:rotate(-.6deg)}20%{transform:rotate(-1.6deg)}45%{transform:rotate(.4deg)}70%{transform:rotate(-1deg)}}
+  .tape{position:absolute;top:-17px;left:50%;transform:translateX(-50%) rotate(-3deg);width:134px;height:34px;background:rgba(240,169,188,.55);
+    clip-path:polygon(0 0,100% 0,100% 100%,88% 90%,76% 100%,64% 90%,52% 100%,40% 90%,28% 100%,16% 90%,4% 100%,0 88%)}
+  .progress{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
+  .pheart{width:20px;height:20px;color:#ecc7d3;transition:color .4s, transform .4s}
+  .pheart.done{color:var(--rose);transform:scale(1.18)}
+  .hehe{font:600 clamp(24px,5.4vw,29px)/1.1 'Caveat',cursive;color:var(--rose);transform:rotate(-1.5deg);margin-bottom:12px}
+  .salute{font:700 clamp(34px,7vw,44px)/1.1 'Caveat',cursive;color:var(--rose);margin-bottom:6px}
+  .doodle{width:132px;height:auto;margin:0 auto 12px;display:block}
+  .loves{display:flex;gap:20px;justify-content:center;align-items:center;margin:0 0 16px;color:var(--rose-soft)}
+  .loves svg{width:21px;height:21px}
+  .loves svg:nth-child(1){transform:rotate(-8deg)}
+  .loves svg:nth-child(3){transform:rotate(8deg)}
+  .typed{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,3.8vw,20px);line-height:1.75;color:var(--ink);text-align:left;min-height:170px}
+  .typed.typing::after{content:"";display:inline-block;width:2px;height:.95em;background:var(--rose);margin-left:2px;vertical-align:-.12em;animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .intro-actions{margin-top:18px}
+  .intro-actions .btn{opacity:0;transform:translateY(8px);transition:.5s}
+  .intro-actions .btn.show{opacity:1;transform:none}
+  .step-in{animation:stepIn .55s ease both}
+  @keyframes stepIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .q-kicker{font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .q-text{font:italic 500 clamp(23px,5.4vw,31px)/1.35 'Cormorant Garamond',serif;color:var(--ink);margin-bottom:28px}
+  .q-text .big{color:var(--rose-deep)}
+  .q-text .paren{display:block;font:600 clamp(18px,4vw,21px)/1.2 'Caveat',cursive;color:var(--muted);margin-top:8px}
+  .q-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .btn{font-weight:700;letter-spacing:.04em;border-radius:999px;padding:13px 28px;font-size:15px;cursor:pointer;
+    border:1.5px solid transparent;transition:transform .25s, box-shadow .25s, background .25s, border-color .25s, opacity .3s}
+  .btn-solid{background:var(--rose);color:#fff;box-shadow:0 8px 18px -8px rgba(201,69,108,.6)}
+  .btn-solid:hover{background:var(--rose-deep);transform:translateY(-2px)}
+  .btn-ghost{background:#fff;border-color:rgba(201,69,108,.4);color:var(--rose-deep)}
+  .btn-ghost:hover{border-color:var(--rose)}
+  .btn:disabled{cursor:default}
+  .btn.gone{opacity:.3;transform:scale(.55)!important;pointer-events:none}
+  .btn.begging{animation:beg 1s ease-in-out infinite}
+  @keyframes beg{0%,100%{transform:scale(1.26)}50%{transform:scale(1.38)}}
+  .plead{min-height:34px;margin-top:18px;font:600 23px/1.2 'Caveat',cursive;color:var(--rose-deep);opacity:0}
+  .plead.pop{animation:popIn .45s cubic-bezier(.3,1.6,.5,1) both}
+  @keyframes popIn{from{opacity:0;transform:scale(.7) rotate(-3deg)}to{opacity:1;transform:none}}
+
+  /* ============ FINALE + SELFIE UPLOAD ============ */
+  .finale-yay{font:700 clamp(58px,14vw,94px)/1 'Caveat',cursive;color:var(--rose);animation:popBig .8s cubic-bezier(.3,1.5,.5,1) both .15s}
+  @keyframes popBig{from{opacity:0;transform:scale(.4) rotate(-7deg)}to{opacity:1;transform:scale(1) rotate(-2deg)}}
+  .finale-line{font:500 clamp(19px,4.5vw,24px)/1.65 'Cormorant Garamond',serif;color:var(--ink);
+    max-width:26em;margin-top:14px;animation:stepIn .7s ease both .5s}
+  .finale-line em{font-style:italic;color:var(--rose-deep)}
+
+  .upload-zone{margin-top:26px;display:flex;flex-direction:column;align-items:center;animation:stepIn .7s ease both .7s}
+  .polaroid{position:relative;width:min(72vw,280px);background:#fff;padding:12px 12px 13px;border-radius:4px;
+    box-shadow:0 14px 34px -14px rgba(90,30,50,.32);transform:rotate(-2deg);transition:transform .3s}
+  .polaroid:hover{transform:rotate(-1deg) scale(1.01)}
+  .polaroid.dragging{transform:rotate(0deg) scale(1.03)}
+  .ptape{position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-4deg);width:110px;height:28px;background:rgba(240,169,188,.55);
+    clip-path:polygon(0 0,100% 0,100% 100%,88% 90%,76% 100%,64% 90%,52% 100%,40% 90%,28% 100%,16% 90%,4% 100%,0 88%)}
+  .photo-box{position:relative;aspect-ratio:3/4;border-radius:3px;overflow:hidden;background:#fbeef2;cursor:pointer}
+  .photo-box .inner-dash{position:absolute;inset:7px;border:2px dashed var(--rose-soft);border-radius:2px;pointer-events:none}
+  .polaroid.has-photo .inner-dash{display:none}
+  .photo-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted)}
+  .photo-empty svg{width:34px;height:34px;color:var(--rose-soft)}
+  .photo-empty p{font:600 18px/1.2 'Caveat',cursive;max-width:12em}
+  .photo-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .photo-box.flash::after{content:"";position:absolute;inset:0;background:#fff;animation:flash .55s ease-out forwards}
+  @keyframes flash{from{opacity:.9}to{opacity:0}}
+  .polaroid-cap{font:600 20px/1 'Caveat',cursive;color:var(--muted);text-align:center;margin-top:10px}
+  .sent-stamp{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) rotate(-14deg);border:2.5px solid var(--rose);
+    color:var(--rose);border-radius:8px;padding:6px 14px;font-size:16px;font-weight:700;letter-spacing:.18em;
+    text-transform:uppercase;background:rgba(255,255,255,.88);display:none;align-items:center;gap:6px}
+  .sent-stamp svg{width:15px;height:15px}
+  .polaroid.sent .sent-stamp{display:flex;animation:stampIn .45s cubic-bezier(.3,1.6,.5,1) both}
+  @keyframes stampIn{from{opacity:0;transform:translate(-50%,-50%) rotate(-14deg) scale(1.9)}to{opacity:1;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}}
+  .upload-actions{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .wa-link{font-size:13px;font-weight:600;color:var(--muted);text-decoration:underline;text-underline-offset:4px}
+  .wa-link:hover{color:var(--rose-deep)}
+  .upload-note{min-height:22px;max-width:22em;font:600 19px/1.3 'Caveat',cursive;color:var(--rose-deep)}
+
+  .kiss-row{display:flex;align-items:center;gap:18px;margin:24px 0 2px;animation:stepIn .7s ease both 1s}
+  .kiss{width:clamp(58px,12vw,76px);height:auto;transform:rotate(-10deg);filter:drop-shadow(0 3px 6px rgba(201,69,108,.3))}
+  .finale-love{font:700 clamp(34px,8vw,46px)/1.2 'Caveat',cursive;color:var(--rose-deep);text-align:left}
+  .finale-sig{font:600 21px/1 'Caveat',cursive;color:var(--muted);margin-top:6px;animation:stepIn .7s ease both 1.2s}
+  .finale-ps{margin-top:26px;font-size:11px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);animation:stepIn .7s ease both 1.35s}
+  .replay{margin-top:12px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.08em;
+    text-decoration:underline;text-underline-offset:4px;cursor:pointer;animation:stepIn .7s ease both 1.5s}
+  .replay:hover{color:var(--rose-deep)}
+
+  @media (max-width:420px){
+    .env-address{left:16px;bottom:12px}
+    .env-address .name{font-size:21px}
+    .stamp{width:50px;top:9px;right:9px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div class="frame"></div>
+
+<main id="stage">
+
+  <!-- SCENE 1 · sealed envelope -->
+  <section class="scene scene-envelope active" id="sceneEnvelope">
+    <p class="kicker">you've got mail</p>
+    <div class="envelope-wrap">
+      <div class="tilt" id="tilt">
+        <div class="envelope" id="envelope">
+          <div class="env-shadow"></div>
+          <div class="env-back"></div>
+          <div class="env-letter">
+            <div class="mini">
+              <svg class="mini-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <p class="mini-note">hi, it's for you…</p>
+              <div class="mline w1"></div><div class="mline w2"></div><div class="mline w3"></div>
+            </div>
+          </div>
+          <div class="env-pocket"></div>
+          <div class="flap-plane"><div class="env-flap"></div></div>
+          <div class="stamp">
+            <svg class="stamp-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span class="stamp-txt">first class</span>
+            <span class="stamp-sub">with love</span>
+          </div>
+          <div class="env-address">
+            <span class="to">to,</span>
+            <span class="name">my Ayeshsa</span>
+          </div>
+          <button class="seal" id="seal" aria-label="Open the letter">
+            <span class="seal-ring"></span>
+            <svg viewBox="0 0 24 24"><path fill="#ffeaf0" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <p class="address-line">
+      <span class="al-pre">for my</span>
+      <span class="al-name">Ayeshsa</span>
+      <svg class="al-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </p>
+    <p class="hint">tap the wax seal to open</p>
+  </section>
+
+  <!-- SCENE 2 · the letter -->
+  <section class="scene" id="sceneLetter">
+    <div class="paper" id="paper">
+      <div class="tape"></div>
+      <div class="progress" id="progress"></div>
+      <div id="letterBody">
+        <div class="step">
+          <p class="hehe">so i finally made this for you hehe</p>
+          <p class="salute">Dearest Ayeshsa,</p>
+          <svg class="doodle" viewBox="0 0 140 12" fill="none"><path d="M3 8c8-8 16-8 24 0s16 8 24 0 16-8 24 0 16 8 24 0 16-8 24 0" stroke="#eaa9bc" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="loves" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.2" r="1.9"/><path d="M12 6.1v1.6"/><path d="M12 7.7l8.6 6.1a1.6 1.6 0 0 1-.9 2.9H4.3a1.6 1.6 0 0 1-.9-2.9L12 7.7z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.2 12.9 13 7.6a1.5 1.5 0 0 1 2.6 1.5l-2.3 4.3z"/><rect x="9" y="13.4" width="8" height="3" rx="1"/><rect x="8" y="17.2" width="10" height="3.4" rx="1.2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17.6V6.4L19.5 4v11.2"/><circle cx="5.6" cy="17.6" r="2.4" fill="currentColor" stroke="none"/><circle cx="17.1" cy="15.2" r="2.4" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <p class="typed" id="typed"></p>
+          <div class="intro-actions">
+            <button class="btn btn-solid" id="introBtn" hidden>I'm ready</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 3 · the payoff -->
+  <section class="scene" id="sceneFinale">
+    <p class="finale-yay">Yayyyyy!</p>
+    <p class="finale-line">Now you owe your home boy <em>fries</em> and a cute <em>kissing selfie</em> of you.</p>
+
+    <div class="upload-zone" id="uploadZone">
+      <div class="polaroid" id="polaroid">
+        <div class="ptape"></div>
+        <div class="photo-box" id="photoBox" role="button" tabindex="0" aria-label="Add your selfie">
+          <div class="inner-dash"></div>
+          <div class="photo-empty" id="photoEmpty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.2-1.8a1.5 1.5 0 0 1 1.2-.7h3a1.5 1.5 0 0 1 1.2.7L15.9 6h1.6A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg>
+            <p>tap to add your kissing selfie</p>
+          </div>
+          <img id="photoPreview" alt="your selfie preview" hidden>
+        </div>
+        <p class="polaroid-cap">muahhhh — for my home boy</p>
+        <div class="sent-stamp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12.5 9.5 18 20 6.5"/></svg>sent</div>
+      </div>
+      <input type="file" id="selfieInput" accept="image/*" hidden>
+      <div class="upload-actions">
+        <button class="btn btn-solid" id="sendSelfie" hidden>send it to your home boy</button>
+        <a class="wa-link" id="waLink" target="_blank" rel="noopener" hidden>or WhatsApp it to me yourself</a>
+        <p class="upload-note" id="uploadNote"></p>
+      </div>
+    </div>
+
+    <div class="kiss-row">
+      <svg class="kiss" viewBox="0 0 100 62">
+        <path fill="#c9456c" d="M8 30 C 20 10, 38 16, 50 24 C 62 16, 80 10, 92 30 C 82 48, 64 54, 50 52 C 36 54, 18 48, 8 30 Z"/>
+        <path fill="#8f2b4c" opacity=".55" d="M12 31 C 30 27, 70 27, 88 31 C 70 36, 30 36, 12 31 Z"/>
+      </svg>
+      <p class="finale-love">I love you — Muahhhhh</p>
+    </div>
+    <p class="finale-sig">— forever your home boy</p>
+    <p class="finale-ps">psst — screenshot this page, it's your official receipt</p>
+    <button class="replay" id="replay">read it again</button>
+  </section>
+
+</main>
+
+<canvas id="fx"></canvas>
+
+<script>
+(function(){
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const pick = a => a[Math.floor(Math.random()*a.length)];
+
+  /* ================================================================
+     EDIT THESE TWO LINES — this is how the selfie reaches YOU.
+     RECEIVE_EMAIL    : your email. The selfie gets sent there via
+                        formsubmit.co (free, no account needed).
+                        IMPORTANT: the very FIRST time it's used,
+                        FormSubmit emails you an "activate" link —
+                        click it once, and every selfie after that
+                        lands straight in your inbox.
+     WHATSAPP_NUMBER  : optional backup. With country code, digits
+                        only, e.g. "919876543210". Leave "" to hide
+                        the WhatsApp fallback link.
+     ================================================================ */
+  const RECEIVE_EMAIL   = "nyctoncx@gmail.com";
+  const WHATSAPP_NUMBER = "";
+
+  const CONFIGURED = RECEIVE_EMAIL.includes("@") && !RECEIVE_EMAIL.includes("your-email");
+
+  /* hidden mail form — posts the selfie in the background, she never leaves the page */
+  const mailFrame = document.createElement('iframe');
+  mailFrame.name = 'mailFrame';
+  mailFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden';
+  document.body.appendChild(mailFrame);
+  const mailForm = document.createElement('form');
+  mailForm.method = 'POST';
+  mailForm.enctype = 'multipart/form-data';
+  mailForm.target = 'mailFrame';
+  mailForm.action = 'https://formsubmit.co/' + RECEIVE_EMAIL;
+  mailForm.style.display = 'none';
+  mailForm.innerHTML =
+    '<input type="hidden" name="_subject" value="A kissing selfie from Ayeshsa">' +
+    '<input type="hidden" name="_captcha" value="false">' +
+    '<input type="hidden" name="_template" value="box">' +
+    '<input type="file" name="selfie" accept="image/*">';
+  document.body.appendChild(mailForm);
+  const mailFile = mailForm.querySelector('input[type=file]');
+
+  /* ---------- canvases: ambient hearts & notes, burst particles ---------- */
+  const bgC = $('#bg'), fxC = $('#fx');
+  const b = bgC.getContext('2d'), f = fxC.getContext('2d');
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  let W = 0, H = 0;
+  function resize(){
+    W = innerWidth; H = innerHeight;
+    [bgC, fxC].forEach(c => { c.width = W*dpr; c.height = H*dpr; c.style.width = W+'px'; c.style.height = H+'px'; });
+    b.setTransform(dpr,0,0,dpr,0,0); f.setTransform(dpr,0,0,dpr,0,0);
+  }
+  addEventListener('resize', resize); resize();
+
+  const HEART_PATH = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+  const heartPath = new Path2D(HEART_PATH);
+  const heartSVG = (filled, cls) =>
+    `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${HEART_PATH}" ${filled ? 'fill="currentColor"' : 'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"'}/></svg>`;
+
+  function drawHeart(ctx,x,y,s,rot,color,alpha){
+    ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+    const k = s/24; ctx.scale(k,k); ctx.translate(-12,-12);
+    ctx.globalAlpha = alpha; ctx.fillStyle = color; ctx.fill(heartPath); ctx.restore();
+  }
+  function drawNote(ctx,x,y,s,rot,color,alpha){
+    ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+    const k = s/24; ctx.scale(k,k); ctx.translate(-12,-12);
+    ctx.globalAlpha = alpha; ctx.fillStyle = color; ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.ellipse(6.2,18,3.4,2.4,-0.35,0,6.3); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(9.4,17.6); ctx.lineTo(9.4,6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(9.4,6); ctx.quadraticCurveTo(15.5,6.5,14.6,11.5);
+    ctx.quadraticCurveTo(13.4,8.4,9.4,8.2); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  const AMB_COLORS = ['#f2b7c6','#eba4b8','#f6cfda','#e79ab0'];
+  const ambient = Array.from({length:18}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    s: 6+Math.random()*11, v: .15+Math.random()*.32,
+    ph: Math.random()*6.28, wob: .3+Math.random()*.5,
+    a: .05+Math.random()*.09, c: pick(AMB_COLORS),
+    type: Math.random() < .25 ? 'n' : 'h'   /* a quarter of the drift is music notes, for her */
+  }));
+
+  const FX_COLORS = ['#d9527a','#c9456c','#f0a9bc','#f6cfda','#e79ab0','#ffffff'];
+  const parts = [];
+  function burst(x,y,n,power){
+    for(let i=0;i<n;i++){
+      const a = Math.random()*Math.PI*2, sp = power*(.35+Math.random());
+      const r = Math.random();
+      parts.push({
+        x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - power*.45,
+        s: 4.5+Math.random()*8, rot: Math.random()*6.28, vr: (Math.random()-.5)*.3,
+        c: pick(FX_COLORS), life: 1, decay: .008+Math.random()*.01,
+        type: r < .7 ? 'h' : (r < .85 ? 'n' : 'd')
+      });
+    }
+  }
+  addEventListener('pointerdown', e => burst(e.clientX, e.clientY, 6, 3), {passive:true});
+
+  let t0 = performance.now();
+  function loop(t){
+    const time = (t - t0)/1000;
+    b.clearRect(0,0,W,H);
+    for(const h of ambient){
+      h.y -= h.v; h.x += Math.sin(time*h.wob + h.ph)*.35;
+      if(h.y < -30){ h.y = H+30; h.x = Math.random()*W; }
+      if(h.type === 'h') drawHeart(b, h.x, h.y, h.s, Math.sin(time*.5+h.ph)*.25, h.c, h.a);
+      else drawNote(b, h.x, h.y, h.s, Math.sin(time*.5+h.ph)*.25, h.c, h.a);
+    }
+    f.clearRect(0,0,W,H);
+    for(let i = parts.length-1; i >= 0; i--){
+      const p = parts[i];
+      p.vy += .11; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay;
+      if(p.life <= 0 || p.y > H+30){ parts.splice(i,1); continue; }
+      if(p.type === 'h') drawHeart(f, p.x, p.y, p.s, p.rot, p.c, Math.min(1,p.life));
+      else if(p.type === 'n') drawNote(f, p.x, p.y, p.s, p.rot, p.c, Math.min(1,p.life));
+      else {
+        f.globalAlpha = Math.min(1,p.life); f.fillStyle = p.c;
+        f.beginPath(); f.arc(p.x, p.y, p.s*.3, 0, 6.29); f.fill(); f.globalAlpha = 1;
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ---------- content ---------- */
+  const INTRO = "You love three things with your whole heart — dressing up, makeup, and music — and watching you be you is my favourite show. A text felt too small for someone like you, so I built this tiny corner of the internet instead. Two little questions are waiting below. That's it. Breathe, smoll one.";
+
+  const questions = [
+    { kicker:"first question",
+      text:`Will I be your <span class="big">home boy always</span>… no matter what?`,
+      yes:"always, no matter what", no:"hmm" },
+    { kicker:"and the most important one",
+      text:`Will you go on a <span class="big">Fries date</span> with me? <span class="paren">(smoll one will pay)</span>`,
+      yes:"yes! fries date!", no:"nope" },
+  ];
+
+  const pleads = ["pretty please?","are you sure?","really, really sure?","think it over one more time…","the fries are watching…","okay… this button is hiding now"];
+
+  /* ---------- scene switching ---------- */
+  function goto(id){
+    const cur = document.querySelector('.scene.active');
+    if(!cur) return;
+    cur.classList.add('leave');
+    setTimeout(() => {
+      cur.classList.remove('active','leave');
+      document.getElementById(id).classList.add('active');
+    }, 380);
+  }
+
+  /* ---------- envelope ---------- */
+  const envelope = $('#envelope'), seal = $('#seal'), tilt = $('#tilt');
+  let opened = false;
+
+  addEventListener('mousemove', e => {
+    if(opened) return;
+    const r = envelope.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width/2)) / r.width;
+    const dy = (e.clientY - (r.top + r.height/2)) / r.height;
+    tilt.style.transform = `rotateY(${dx*8}deg) rotateX(${-dy*7}deg)`;
+  }, {passive:true});
+
+  seal.addEventListener('click', openEnvelope, {once:true});
+
+  function openEnvelope(){
+    opened = true;
+    envelope.classList.add('opening');
+    setTimeout(() => envelope.classList.add('flap-open'), 140);
+    setTimeout(() => envelope.classList.add('letter-out'), 950);
+    setTimeout(() => goto('sceneLetter'), 1850);
+    setTimeout(startIntro, 2300);
+  }
+
+  /* ---------- letter ---------- */
+  const paper = $('#paper'), letterBody = $('#letterBody'), progress = $('#progress');
+  const introHTML = letterBody.innerHTML;
+  progress.innerHTML = questions.map(() => heartSVG(false,'pheart')).join('');
+  const phearts = [...progress.querySelectorAll('.pheart')];
+
+  let typingActive = false, typingSkip = false;
+  paper.addEventListener('pointerdown', () => { if(typingActive) typingSkip = true; });
+
+  async function typeText(el, text){
+    typingActive = true; typingSkip = false;
+    el.classList.add('typing'); el.textContent = '';
+    for(let i = 0; i < text.length; i++){
+      if(typingSkip) break;
+      el.textContent += text[i];
+      const ch = text[i];
+      let d = 18;
+      if(',;'.includes(ch)) d = 130;
+      else if('.!?…'.includes(ch)) d = 200;
+      else if(ch === '—') d = 220;
+      await wait(d);
+    }
+    el.textContent = text;
+    el.classList.remove('typing');
+    typingActive = false;
+  }
+
+  async function startIntro(){
+    const typed = $('#typed'), btn = $('#introBtn');
+    await typeText(typed, INTRO);
+    btn.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => btn.classList.add('show')));
+  }
+
+  $('#sceneLetter').addEventListener('click', e => {
+    if(e.target.closest('#introBtn')) wireQuestion(0);
+  });
+
+  function wireQuestion(i){
+    const q = questions[i];
+    phearts.forEach((h,k) => h.classList.toggle('done', k < i));
+    letterBody.innerHTML = `
+      <div class="step step-in">
+        <p class="q-kicker">${q.kicker}</p>
+        <h2 class="q-text">${q.text}</h2>
+        <div class="q-btns">
+          <button class="btn btn-solid yes">${q.yes}</button>
+          <button class="btn btn-ghost no">${q.no}</button>
+        </div>
+        <p class="plead" aria-live="polite"></p>
+      </div>`;
+    const yes = letterBody.querySelector('.yes');
+    const no = letterBody.querySelector('.no');
+    const plead = letterBody.querySelector('.plead');
+    let n = 0;
+
+    no.addEventListener('click', () => {
+      n++;
+      plead.textContent = pleads[Math.min(n-1, pleads.length-1)];
+      plead.classList.remove('pop'); void plead.offsetWidth; plead.classList.add('pop');
+      paper.classList.remove('shake'); void paper.offsetWidth; paper.classList.add('shake');
+      if(n >= pleads.length){
+        no.classList.add('gone');
+        yes.classList.add('begging');
+      } else {
+        no.style.transform = `scale(${Math.max(1 - n*.12, .55)})`;
+        yes.style.transform = `scale(${Math.min(1 + n*.07, 1.32)})`;
+      }
+    });
+
+    yes.addEventListener('click', () => {
+      yes.disabled = true; no.disabled = true;
+      yes.classList.remove('begging'); yes.style.transform = 'scale(1.12)';
+      phearts[i].classList.add('done');
+      const r = yes.getBoundingClientRect();
+      burst(r.left + r.width/2, r.top + r.height/2, 26, 5.5);
+      setTimeout(() => i === questions.length - 1 ? goFinale() : wireQuestion(i+1), 750);
+    });
+  }
+
+  /* ---------- finale + selfie upload ---------- */
+  const FINALE = $('#sceneFinale');
+  const finaleHTML = FINALE.innerHTML;
+
+  function initFinale(){
+    const input = $('#selfieInput'), box = $('#photoBox'), polaroid = $('#polaroid'),
+          preview = $('#photoPreview'), empty = $('#photoEmpty'),
+          sendBtn = $('#sendSelfie'), wa = $('#waLink'), note = $('#uploadNote');
+    let file = null, sent = false;
+
+    if(WHATSAPP_NUMBER){
+      wa.hidden = false;
+      wa.href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' +
+        encodeURIComponent("muahhh! fries date accepted. selfie incoming, home boy ;)");
+    }
+
+    const choose = () => input.click();
+    box.addEventListener('click', choose);
+    box.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); choose(); } });
+    ['dragover','dragenter'].forEach(ev => box.addEventListener(ev, e => { e.preventDefault(); polaroid.classList.add('dragging'); }));
+    ['dragleave','drop'].forEach(ev => box.addEventListener(ev, e => { e.preventDefault(); polaroid.classList.remove('dragging'); }));
+    box.addEventListener('drop', e => { const fl = e.dataTransfer.files[0]; if(fl) use(fl); });
+    input.addEventListener('change', () => { if(input.files[0]) use(input.files[0]); });
+
+    function use(fl){
+      if(!fl.type.startsWith('image/')){
+        note.textContent = "that's not a selfie, sneaky smoll one — give me a photo!";
+        return;
+      }
+      file = fl;
+      if(preview.src && preview.src.startsWith('blob:')) URL.revokeObjectURL(preview.src);
+      preview.src = URL.createObjectURL(fl);
+      preview.hidden = false; empty.hidden = true;
+      polaroid.classList.add('has-photo');
+      polaroid.classList.remove('flash'); void polaroid.offsetWidth; polaroid.classList.add('flash');
+      sendBtn.hidden = false;
+      if(!sent) note.textContent = 'psst — long-press the photo if you want to keep a copy for yourself.';
+      burst(innerWidth/2, innerHeight*.45, 16, 4);
+    }
+
+    sendBtn.addEventListener('click', () => {
+      if(sent || !file) return;
+      if(!CONFIGURED){
+        note.textContent = 'oops — your home boy forgot to plug in his email! long-press the selfie, save it, and send it to him yourself.';
+        polaroid.style.transform = 'rotate(-2deg)';
+        polaroid.classList.remove('flash'); void polaroid.offsetWidth; polaroid.classList.add('flash');
+        return;
+      }
+      const dt = new DataTransfer(); dt.items.add(file);
+      mailFile.files = dt.files;
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'flying to your home boy…';
+      note.textContent = '';
+      mailForm.submit();
+      let done = false;
+      const finish = () => {
+        if(done) return; done = true; sent = true;
+        polaroid.classList.add('sent');
+        sendBtn.textContent = 'sent — muahhh!';
+        note.textContent = 'delivered! your home boy is framing this.';
+        burst(innerWidth/2, innerHeight*.4, 40, 6.5);
+      };
+      mailFrame.addEventListener('load', finish, {once:true});
+      setTimeout(finish, 9000);   /* safety net if the confirmation page is slow */
+    });
+  }
+  initFinale();
+
+  function goFinale(){
+    goto('sceneFinale');
+    setTimeout(() => burst(W*.5, H*.35, 70, 8), 380);
+    setTimeout(() => { burst(W*.22, H*.55, 26, 5); burst(W*.78, H*.55, 26, 5); }, 1050);
+    setTimeout(() => burst(W*.5, H*.28, 34, 6), 1650);
+  }
+
+  /* ---------- replay ---------- */
+  $('#replay').addEventListener('click', () => {
+    opened = false;
+    envelope.classList.remove('opening','flap-open','letter-out');
+    letterBody.innerHTML = introHTML;
+    phearts.forEach(h => h.classList.remove('done'));
+    tilt.style.transform = '';
+    FINALE.innerHTML = finaleHTML;
+    initFinale();
+    seal.disabled = false;
+    seal.addEventListener('click', openEnvelope, {once:true});
+    goto('sceneEnvelope');
+  });
+})();
+</script>
+</body>
+</html>
